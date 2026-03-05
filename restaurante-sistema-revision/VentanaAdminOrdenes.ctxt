@@ -1,0 +1,15 @@
+#BlueJ class context
+comment0.target=VentanaAdminOrdenes
+comment1.params=sistema
+comment1.target=VentanaAdminOrdenes(SistemaRestaurante)
+comment2.params=
+comment2.target=void\ inicializar()
+comment3.params=row\ column
+comment3.target=boolean\ isCellEditable(int,\ int)
+comment4.params=
+comment4.target=void\ cargarTodasLasOrdenes()
+comment5.params=filtro
+comment5.target=void\ filtrarOrdenes(java.lang.String)
+comment6.params=ordenId
+comment6.target=void\ mostrarDetalleOrden(int)
+numComments=7

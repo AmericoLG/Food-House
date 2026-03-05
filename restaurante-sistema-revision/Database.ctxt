@@ -1,0 +1,25 @@
+#BlueJ class context
+comment0.target=Database
+comment1.params=
+comment1.target=Database()
+comment10.params=numero
+comment10.target=Mesa\ buscarMesa(int)
+comment11.params=o
+comment11.target=void\ agregarOrden(Orden)
+comment2.params=
+comment2.target=void\ cargarDatosDesdeBD()
+comment3.params=
+comment3.target=void\ crearDatosDefault()
+comment4.params=
+comment4.target=java.util.ArrayList\ getUsuarios()
+comment5.params=
+comment5.target=java.util.ArrayList\ getProductos()
+comment6.params=
+comment6.target=java.util.ArrayList\ getMesas()
+comment7.params=
+comment7.target=java.util.ArrayList\ getOrdenes()
+comment8.params=identificador
+comment8.target=Usuario\ buscarUsuario(java.lang.String)
+comment9.params=id
+comment9.target=Producto\ buscarProducto(int)
+numComments=12

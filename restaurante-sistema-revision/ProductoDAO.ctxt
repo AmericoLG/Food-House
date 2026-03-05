@@ -1,0 +1,7 @@
+#BlueJ class context
+comment0.target=ProductoDAO
+comment1.params=
+comment1.target=java.util.ArrayList\ obtenerTodos()
+comment2.params=p
+comment2.target=boolean\ insertar(Producto)
+numComments=3

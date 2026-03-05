@@ -1,0 +1,9 @@
+#BlueJ class context
+comment0.target=OrdenDAO
+comment1.params=mesaId\ meseroNombre
+comment1.target=int\ crearOrden(int,\ java.lang.String)
+comment2.params=ordenId\ producto\ cantidad\ notas
+comment2.target=boolean\ agregarItem(int,\ Producto,\ int,\ java.lang.String)
+comment3.params=
+comment3.target=java.util.ArrayList\ obtenerActivas()
+numComments=4

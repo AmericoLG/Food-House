@@ -1,0 +1,19 @@
+#BlueJ class context
+comment0.target=VentanaLogin
+comment1.params=
+comment1.target=VentanaLogin()
+comment2.params=
+comment2.target=void\ inicializar()
+comment3.params=g
+comment3.target=void\ paintComponent(java.awt.Graphics)
+comment4.params=g
+comment4.target=void\ paintComponent(java.awt.Graphics)
+comment5.params=g
+comment5.target=void\ paintComponent(java.awt.Graphics)
+comment6.params=
+comment6.target=void\ intentarLogin()
+comment7.params=
+comment7.target=void\ abrirVentanaPrincipal()
+comment8.params=args
+comment8.target=void\ main(java.lang.String[])
+numComments=9

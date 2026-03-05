@@ -1,0 +1,13 @@
+#BlueJ class context
+comment0.target=UsuarioDAO
+comment1.params=userStr\ passStr
+comment1.target=Usuario\ login(java.lang.String,\ java.lang.String)
+comment2.params=
+comment2.target=java.util.ArrayList\ obtenerTodos()
+comment3.params=u
+comment3.target=boolean\ insertar(Usuario)
+comment4.params=u
+comment4.target=boolean\ actualizar(Usuario)
+comment5.params=ident
+comment5.target=boolean\ eliminar(java.lang.String)
+numComments=6
