@@ -586,6 +586,19 @@ public class SistemaRestaurante {
                             psUpdateOrden.setInt(1, ordenId);
                             psUpdateOrden.executeUpdate();
                             
+                            // Liberar la mesa asociada a la orden
+                            try {
+                                String sqlMesa = "UPDATE mesas SET estado = 'Libre' WHERE numero = (SELECT mesa_id FROM ordenes WHERE id = ?)";
+                                PreparedStatement psMesa = conexion.prepareStatement(sqlMesa);
+                                psMesa.setInt(1, ordenId);
+                                psMesa.executeUpdate();
+                                psMesa.close();
+                                
+                                System.out.println("✅ Mesa liberada automáticamente al marcar orden #" + ordenId + " como Pagada");
+                            } catch (SQLException e) {
+                                System.out.println("⚠️ Error liberando mesa: " + e.getMessage());
+                            }
+                            
                             System.out.println("✅ Orden #" + ordenId + " completada y marcada como Pagada");
                             System.out.println("🎉 Todos los items de la orden han sido preparados y entregados");
                         } else {

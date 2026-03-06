@@ -82,8 +82,8 @@ public class VentanaAdmin extends JFrame {
         
         JButton btnAgregar = new JButton("Agregar");
         JButton btnEditar = new JButton("Editar");
-        JButton btnDesactivar = new JButton("Desactivar");
-        JButton btnActualizar = new JButton("Actualizar");
+        JButton btnDesactivar = new JButton("Activar/Desactivar");
+        JButton btnEliminar = new JButton("Eliminar");
         
         // Estilos de botones para productos
         btnAgregar.setBackground(new Color(40, 167, 69));
@@ -101,20 +101,20 @@ public class VentanaAdmin extends JFrame {
         btnDesactivar.setFocusPainted(false);
         btnDesactivar.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
-        btnActualizar.setBackground(new Color(108, 117, 125));
-        btnActualizar.setForeground(Color.BLACK);
-        btnActualizar.setFocusPainted(false);
-        btnActualizar.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnEliminar.setBackground(new Color(220, 53, 69));
+        btnEliminar.setForeground(Color.BLACK);
+        btnEliminar.setFocusPainted(false);
+        btnEliminar.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
         btnAgregar.addActionListener(e -> mostrarDialogoProducto(null));
         btnEditar.addActionListener(e -> editarProductoSeleccionado());
         btnDesactivar.addActionListener(e -> desactivarProductoSeleccionado());
-        btnActualizar.addActionListener(e -> cargarProductos());
+        btnEliminar.addActionListener(e -> eliminarProductoSeleccionado());
         
         panelBotones.add(btnAgregar);
         panelBotones.add(btnEditar);
         panelBotones.add(btnDesactivar);
-        panelBotones.add(btnActualizar);
+        panelBotones.add(btnEliminar);
         panelSuperior.add(panelBotones, BorderLayout.EAST);
         
         panel.add(panelSuperior, BorderLayout.NORTH);
@@ -150,21 +150,21 @@ public class VentanaAdmin extends JFrame {
             }
             
             String sql = "SELECT id, nombre, descripcion, precio_venta, disponible FROM productos ORDER BY id DESC";
-            Statement stmt = sistema.getConexion().createStatement();
-            ResultSet rs = stmt.executeQuery(sql);
-            
-            while (rs.next()) {
-                Object[] fila = new Object[5];
-                fila[0] = rs.getInt("id");
-                fila[1] = rs.getString("nombre");
-                fila[2] = rs.getString("descripcion");
-                fila[3] = "bs" + String.format("%.2f", rs.getDouble("precio_venta"));
-                fila[4] = rs.getBoolean("disponible") ? "Activo" : "Inactivo";
-                modeloTablaProductos.addRow(fila);
+            try (Statement stmt = sistema.getConexion().createStatement();
+                 ResultSet rs = stmt.executeQuery(sql)) {
+                
+                while (rs.next()) {
+                    Object[] fila = new Object[5];
+                    fila[0] = rs.getInt("id");
+                    fila[1] = rs.getString("nombre");
+                    fila[2] = rs.getString("descripcion");
+                    fila[3] = "bs" + String.format("%.2f", rs.getDouble("precio_venta"));
+                    fila[4] = rs.getBoolean("disponible") ? "Activo" : "Inactivo";
+                    modeloTablaProductos.addRow(fila);
+                }
             }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error al cargar productos: " + e.getMessage());
-            e.printStackTrace();
         }
     }
     
@@ -179,7 +179,23 @@ public class VentanaAdmin extends JFrame {
         panelForm.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         
         JTextField txtNombre = new JTextField();
+        txtNombre.setDocument(new javax.swing.text.PlainDocument() {
+            @Override
+            public void insertString(int offs, String str, javax.swing.text.AttributeSet a) throws javax.swing.text.BadLocationException {
+                if (getLength() + str.length() <= 100) {
+                    super.insertString(offs, str, a);
+                }
+            }
+        });
         JTextArea txtDescripcion = new JTextArea(3, 20);
+        txtDescripcion.setDocument(new javax.swing.text.PlainDocument() {
+            @Override
+            public void insertString(int offs, String str, javax.swing.text.AttributeSet a) throws javax.swing.text.BadLocationException {
+                if (getLength() + str.length() <= 100) {
+                    super.insertString(offs, str, a);
+                }
+            }
+        });
         JScrollPane scrollDesc = new JScrollPane(txtDescripcion);
         JTextField txtPrecio = new JTextField();
         JCheckBox chkDisponible = new JCheckBox("Disponible", true);
@@ -187,14 +203,16 @@ public class VentanaAdmin extends JFrame {
         if (esEdicion) {
             try {
                 String sql = "SELECT * FROM productos WHERE id = ?";
-                PreparedStatement ps = sistema.getConexion().prepareStatement(sql);
-                ps.setInt(1, idProducto);
-                ResultSet rs = ps.executeQuery();
-                if (rs.next()) {
-                    txtNombre.setText(rs.getString("nombre"));
-                    txtDescripcion.setText(rs.getString("descripcion"));
-                    txtPrecio.setText(String.valueOf(rs.getDouble("precio_venta")));
-                    chkDisponible.setSelected(rs.getBoolean("disponible"));
+                try (PreparedStatement ps = sistema.getConexion().prepareStatement(sql);
+                     ResultSet rs = ps.executeQuery()) {
+                    
+                    ps.setInt(1, idProducto);
+                    if (rs.next()) {
+                        txtNombre.setText(rs.getString("nombre"));
+                        txtDescripcion.setText(rs.getString("descripcion"));
+                        txtPrecio.setText(String.valueOf(rs.getDouble("precio_venta")));
+                        chkDisponible.setSelected(rs.getBoolean("disponible"));
+                    }
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -260,21 +278,23 @@ public class VentanaAdmin extends JFrame {
                 
                 if (esEdicion) {
                     String sql = "UPDATE productos SET nombre=?, descripcion=?, precio_venta=?, disponible=? WHERE id=?";
-                    PreparedStatement ps = sistema.getConexion().prepareStatement(sql);
-                    ps.setString(1, nombre);
-                    ps.setString(2, descripcion);
-                    ps.setDouble(3, precio);
-                    ps.setBoolean(4, disponible);
-                    ps.setInt(5, idProducto);
-                    ps.executeUpdate();
+                    try (PreparedStatement ps = sistema.getConexion().prepareStatement(sql)) {
+                        ps.setString(1, nombre);
+                        ps.setString(2, descripcion);
+                        ps.setDouble(3, precio);
+                        ps.setBoolean(4, disponible);
+                        ps.setInt(5, idProducto);
+                        ps.executeUpdate();
+                    }
                 } else {
                     String sql = "INSERT INTO productos (nombre, descripcion, precio_venta, disponible) VALUES (?, ?, ?, ?)";
-                    PreparedStatement ps = sistema.getConexion().prepareStatement(sql);
-                    ps.setString(1, nombre);
-                    ps.setString(2, descripcion);
-                    ps.setDouble(3, precio);
-                    ps.setBoolean(4, disponible);
-                    ps.executeUpdate();
+                    try (PreparedStatement ps = sistema.getConexion().prepareStatement(sql)) {
+                        ps.setString(1, nombre);
+                        ps.setString(2, descripcion);
+                        ps.setDouble(3, precio);
+                        ps.setBoolean(4, disponible);
+                        ps.executeUpdate();
+                    }
                 }
                 
                 cargarProductos();
@@ -330,13 +350,50 @@ public class VentanaAdmin extends JFrame {
         if (confirm == JOptionPane.YES_OPTION) {
             try {
                 String sql = "UPDATE productos SET disponible = ? WHERE id = ?";
-                PreparedStatement ps = sistema.getConexion().prepareStatement(sql);
-                ps.setBoolean(1, nuevoEstado);
-                ps.setInt(2, id);
-                ps.executeUpdate();
+                try (PreparedStatement ps = sistema.getConexion().prepareStatement(sql)) {
+                    ps.setBoolean(1, nuevoEstado);
+                    ps.setInt(2, id);
+                    ps.executeUpdate();
+                }
                 cargarProductos();
             } catch (SQLException e) {
                 JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+            }
+        }
+    }
+    
+    private void eliminarProductoSeleccionado() {
+        int fila = tablaProductos.getSelectedRow();
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this, "Selecciona un producto para eliminar");
+            return;
+        }
+        
+        int id = (Integer) modeloTablaProductos.getValueAt(fila, 0);
+        String nombreProducto = (String) modeloTablaProductos.getValueAt(fila, 1);
+        
+        int confirm = JOptionPane.showConfirmDialog(this, 
+            "¿Está seguro de eliminar el producto \"" + nombreProducto + "\"?\n\nEsta acción no se puede deshacer.", 
+            "Confirmar Eliminación", 
+            JOptionPane.YES_NO_OPTION, 
+            JOptionPane.WARNING_MESSAGE);
+            
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                String sql = "DELETE FROM productos WHERE id = ?";
+                try (PreparedStatement ps = sistema.getConexion().prepareStatement(sql)) {
+                    ps.setInt(1, id);
+                    int filasAfectadas = ps.executeUpdate();
+                    
+                    if (filasAfectadas > 0) {
+                        JOptionPane.showMessageDialog(this, "Producto eliminado correctamente");
+                        cargarProductos();
+                    } else {
+                        JOptionPane.showMessageDialog(this, "No se pudo eliminar el producto");
+                    }
+                }
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, "Error al eliminar producto: " + e.getMessage());
             }
         }
     }
@@ -361,8 +418,8 @@ public class VentanaAdmin extends JFrame {
         
         JButton btnAgregar = new JButton("Agregar");
         JButton btnEditar = new JButton("Editar");
-        JButton btnDesactivar = new JButton("Desactivar");
-        JButton btnActualizar = new JButton("Actualizar");
+        JButton btnDesactivar = new JButton("Activar/Desactivar");
+        JButton btnEliminar = new JButton("Eliminar");
         
         // Estilos de botones para usuarios
         btnAgregar.setBackground(new Color(40, 167, 69));
@@ -380,20 +437,20 @@ public class VentanaAdmin extends JFrame {
         btnDesactivar.setFocusPainted(false);
         btnDesactivar.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
-        btnActualizar.setBackground(new Color(108, 117, 125));
-        btnActualizar.setForeground(Color.BLACK);
-        btnActualizar.setFocusPainted(false);
-        btnActualizar.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnEliminar.setBackground(new Color(220, 53, 69));
+        btnEliminar.setForeground(Color.BLACK);
+        btnEliminar.setFocusPainted(false);
+        btnEliminar.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
         btnAgregar.addActionListener(e -> mostrarDialogoUsuario(null));
         btnEditar.addActionListener(e -> editarUsuarioSeleccionado());
         btnDesactivar.addActionListener(e -> desactivarUsuarioSeleccionado());
-        btnActualizar.addActionListener(e -> cargarUsuarios());
+        btnEliminar.addActionListener(e -> eliminarUsuarioSeleccionado());
         
         panelBotones.add(btnAgregar);
         panelBotones.add(btnEditar);
         panelBotones.add(btnDesactivar);
-        panelBotones.add(btnActualizar);
+        panelBotones.add(btnEliminar);
         panelSuperior.add(panelBotones, BorderLayout.EAST);
         
         panel.add(panelSuperior, BorderLayout.NORTH);
@@ -535,27 +592,31 @@ public class VentanaAdmin extends JFrame {
     private void mostrarDialogoMesa(Integer numeroMesa) {
         boolean esEdicion = numeroMesa != null;
         JDialog dialogo = new JDialog(this, esEdicion ? "Editar Mesa" : "Nueva Mesa", true);
-        dialogo.setSize(350, 200);
+        dialogo.setSize(350, 250);
         dialogo.setLocationRelativeTo(this);
         dialogo.setLayout(new BorderLayout(10, 10));
         
-        JPanel panelForm = new JPanel(new GridLayout(2, 2, 10, 10));
+        JPanel panelForm = new JPanel(new GridLayout(3, 2, 10, 10));
         panelForm.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         
         JTextField txtNumero = new JTextField();
+        JTextField txtCapacidad = new JTextField();
         
         if (esEdicion) {
             Mesa mesa = mesaDAO.obtenerPorNumero(numeroMesa);
             if (mesa != null) {
                 txtNumero.setText(String.valueOf(mesa.getNumero()));
                 txtNumero.setEnabled(false); // No permitir cambiar el número en edición
+                txtCapacidad.setText(String.valueOf(mesa.getCapacidad()));
             }
+        } else {
+            txtCapacidad.setText("4"); // Valor por defecto para nuevas mesas
         }
         
         panelForm.add(new JLabel("Número de Mesa:"));
         panelForm.add(txtNumero);
-        panelForm.add(new JLabel("Capacidad (fija):"));
-        panelForm.add(new JLabel("4 personas"));
+        panelForm.add(new JLabel("Capacidad (1-10):"));
+        panelForm.add(txtCapacidad);
         
         JPanel panelBotones = new JPanel(new FlowLayout());
         JButton btnGuardar = new JButton("Guardar");
@@ -574,10 +635,27 @@ public class VentanaAdmin extends JFrame {
         btnGuardar.addActionListener(e -> {
             try {
                 int numero = Integer.parseInt(txtNumero.getText().trim());
+                int capacidad = Integer.parseInt(txtCapacidad.getText().trim());
                 
+                // Validación del número de mesa
                 if (numero <= 0) {
                     JOptionPane.showMessageDialog(dialogo, "El número de mesa debe ser mayor a 0");
                     txtNumero.requestFocus();
+                    return;
+                }
+                
+                if (numero > 100) {
+                    JOptionPane.showMessageDialog(dialogo, "El número de mesa no puede ser mayor a 100");
+                    txtNumero.requestFocus();
+                    txtNumero.selectAll();
+                    return;
+                }
+                
+                // Validación de la capacidad
+                if (capacidad < 1 || capacidad > 10) {
+                    JOptionPane.showMessageDialog(dialogo, "La capacidad debe estar entre 1 y 10 personas");
+                    txtCapacidad.requestFocus();
+                    txtCapacidad.selectAll();
                     return;
                 }
                 
@@ -592,8 +670,8 @@ public class VentanaAdmin extends JFrame {
                     }
                 }
                 
-                // Crear mesa con valores por defecto
-                Mesa mesa = new Mesa(numero, 4); // Capacidad fija de 4
+                // Crear mesa con los valores ingresados
+                Mesa mesa = new Mesa(numero, capacidad);
                 mesa.setEstado("Libre"); // Estado por defecto
                 mesa.setMeseroAsignado(""); // Sin mesero asignado
                 mesa.setReservada(false); // No reservada por defecto
@@ -630,18 +708,19 @@ public class VentanaAdmin extends JFrame {
     private void cargarUsuarios() {
         modeloTablaUsuarios.setRowCount(0);
         try {
-            String sql = "SELECT id, usuario, rol FROM usuarios ORDER BY id DESC";
-            Statement stmt = sistema.getConexion().createStatement();
-            ResultSet rs = stmt.executeQuery(sql);
-            
-            while (rs.next()) {
-                Object[] fila = new Object[5];
-                fila[0] = rs.getInt("id");
-                fila[1] = rs.getString("usuario");
-                fila[2] = rs.getString("rol");
-                fila[3] = "Activo";
-                fila[4] = "Activo";
-                modeloTablaUsuarios.addRow(fila);
+            String sql = "SELECT id, usuario, nombre, rol, activo FROM usuarios ORDER BY id DESC";
+            try (Statement stmt = sistema.getConexion().createStatement();
+                 ResultSet rs = stmt.executeQuery(sql)) {
+                
+                while (rs.next()) {
+                    Object[] fila = new Object[5];
+                    fila[0] = rs.getInt("id");
+                    fila[1] = rs.getString("usuario");
+                    fila[2] = rs.getString("nombre");
+                    fila[3] = rs.getString("rol");
+                    fila[4] = rs.getBoolean("activo") ? "Activo" : "Inactivo";
+                    modeloTablaUsuarios.addRow(fila);
+                }
             }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error al cargar usuarios: " + e.getMessage());
@@ -659,8 +738,32 @@ public class VentanaAdmin extends JFrame {
         panelForm.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         
         JTextField txtUsername = new JTextField();
+        txtUsername.setDocument(new javax.swing.text.PlainDocument() {
+            @Override
+            public void insertString(int offs, String str, javax.swing.text.AttributeSet a) throws javax.swing.text.BadLocationException {
+                if (getLength() + str.length() <= 100) {
+                    super.insertString(offs, str, a);
+                }
+            }
+        });
         JPasswordField txtPassword = new JPasswordField();
+        txtPassword.setDocument(new javax.swing.text.PlainDocument() {
+            @Override
+            public void insertString(int offs, String str, javax.swing.text.AttributeSet a) throws javax.swing.text.BadLocationException {
+                if (getLength() + str.length() <= 100) {
+                    super.insertString(offs, str, a);
+                }
+            }
+        });
         JTextField txtNombre = new JTextField();
+        txtNombre.setDocument(new javax.swing.text.PlainDocument() {
+            @Override
+            public void insertString(int offs, String str, javax.swing.text.AttributeSet a) throws javax.swing.text.BadLocationException {
+                if (getLength() + str.length() <= 100) {
+                    super.insertString(offs, str, a);
+                }
+            }
+        });
         String[] roles = {"Administrador", "Mesero", "Cocinero"};
         JComboBox<String> comboRol = new JComboBox<String>(roles);
         JCheckBox chkActivo = new JCheckBox("Activo", true);
@@ -668,14 +771,16 @@ public class VentanaAdmin extends JFrame {
         if (esEdicion) {
             try {
                 String sql = "SELECT * FROM usuarios WHERE id = ?";
-                PreparedStatement ps = sistema.getConexion().prepareStatement(sql);
-                ps.setInt(1, idUsuario);
-                ResultSet rs = ps.executeQuery();
-                if (rs.next()) {
-                    txtUsername.setText(rs.getString("usuario"));
-                    txtNombre.setText(rs.getString("nombre"));
-                    comboRol.setSelectedItem(rs.getString("rol"));
-                    chkActivo.setSelected(rs.getBoolean("activo"));
+                try (PreparedStatement ps = sistema.getConexion().prepareStatement(sql);
+                     ResultSet rs = ps.executeQuery()) {
+                    
+                    ps.setInt(1, idUsuario);
+                    if (rs.next()) {
+                        txtUsername.setText(rs.getString("usuario"));
+                        txtNombre.setText(rs.getString("nombre"));
+                        comboRol.setSelectedItem(rs.getString("rol"));
+                        chkActivo.setSelected(rs.getBoolean("activo"));
+                    }
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -727,27 +832,32 @@ public class VentanaAdmin extends JFrame {
                 }
                 
                 if (esEdicion) {
-                    String sql = "UPDATE usuarios SET usuario=?, rol=? WHERE id=?";
-                    PreparedStatement ps = sistema.getConexion().prepareStatement(sql);
-                    ps.setString(1, username);
-                    ps.setString(2, rol);
-                    ps.setInt(3, idUsuario);
-                    ps.executeUpdate();
+                    String sql = "UPDATE usuarios SET usuario=?, nombre=?, rol=? WHERE id=?";
+                    try (PreparedStatement ps = sistema.getConexion().prepareStatement(sql)) {
+                        ps.setString(1, username);
+                        ps.setString(2, nombre);
+                        ps.setString(3, rol);
+                        ps.setInt(4, idUsuario);
+                        ps.executeUpdate();
+                    }
                     
                     if (!password.isEmpty()) {
                         String sqlPass = "UPDATE usuarios SET password=? WHERE id=?";
-                        PreparedStatement psPass = sistema.getConexion().prepareStatement(sqlPass);
-                        psPass.setString(1, password);
-                        psPass.setInt(2, idUsuario);
-                        psPass.executeUpdate();
+                        try (PreparedStatement psPass = sistema.getConexion().prepareStatement(sqlPass)) {
+                            psPass.setString(1, password);
+                            psPass.setInt(2, idUsuario);
+                            psPass.executeUpdate();
+                        }
                     }
                 } else {
-                    String sql = "INSERT INTO usuarios (usuario, password, rol) VALUES (?, ?, ?)";
-                    PreparedStatement ps = sistema.getConexion().prepareStatement(sql);
-                    ps.setString(1, username);
-                    ps.setString(2, password);
-                    ps.setString(3, rol);
-                    ps.executeUpdate();
+                    String sql = "INSERT INTO usuarios (usuario, password, nombre, rol) VALUES (?, ?, ?, ?)";
+                    try (PreparedStatement ps = sistema.getConexion().prepareStatement(sql)) {
+                        ps.setString(1, username);
+                        ps.setString(2, password);
+                        ps.setString(3, nombre);
+                        ps.setString(4, rol);
+                        ps.executeUpdate();
+                    }
                 }
                 
                 cargarUsuarios();
@@ -805,13 +915,56 @@ public class VentanaAdmin extends JFrame {
         if (confirm == JOptionPane.YES_OPTION) {
             try {
                 String sql = "UPDATE usuarios SET activo = ? WHERE id = ?";
-                PreparedStatement ps = sistema.getConexion().prepareStatement(sql);
-                ps.setBoolean(1, nuevoEstado);
-                ps.setInt(2, id);
-                ps.executeUpdate();
+                try (PreparedStatement ps = sistema.getConexion().prepareStatement(sql)) {
+                    ps.setBoolean(1, nuevoEstado);
+                    ps.setInt(2, id);
+                    ps.executeUpdate();
+                }
                 cargarUsuarios();
             } catch (SQLException e) {
                 JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+            }
+        }
+    }
+    
+    private void eliminarUsuarioSeleccionado() {
+        int fila = tablaUsuarios.getSelectedRow();
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this, "Selecciona un usuario para eliminar");
+            return;
+        }
+        
+        int id = (Integer) modeloTablaUsuarios.getValueAt(fila, 0);
+        String username = (String) modeloTablaUsuarios.getValueAt(fila, 1);
+        String nombreUsuario = (String) modeloTablaUsuarios.getValueAt(fila, 2);
+        
+        if (username.equals(sistema.getUsuarioActual().getUsuario())) {
+            JOptionPane.showMessageDialog(this, "No puedes eliminar tu propio usuario");
+            return;
+        }
+        
+        int confirm = JOptionPane.showConfirmDialog(this, 
+            "¿Está seguro de eliminar al usuario \"" + nombreUsuario + "\" (" + username + ")?\n\nEsta acción no se puede deshacer.", 
+            "Confirmar Eliminación", 
+            JOptionPane.YES_NO_OPTION, 
+            JOptionPane.WARNING_MESSAGE);
+            
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                String sql = "DELETE FROM usuarios WHERE id = ?";
+                try (PreparedStatement ps = sistema.getConexion().prepareStatement(sql)) {
+                    ps.setInt(1, id);
+                    int filasAfectadas = ps.executeUpdate();
+                    
+                    if (filasAfectadas > 0) {
+                        JOptionPane.showMessageDialog(this, "Usuario eliminado correctamente");
+                        cargarUsuarios();
+                    } else {
+                        JOptionPane.showMessageDialog(this, "No se pudo eliminar el usuario");
+                    }
+                }
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, "Error al eliminar usuario: " + e.getMessage());
             }
         }
     }
@@ -833,16 +986,13 @@ public class VentanaAdmin extends JFrame {
         String[] filtros = {"Todas", "Hoy", "Esta semana", "Este mes"};
         JComboBox<String> comboFiltro = new JComboBox<String>(filtros);
         JButton btnGenerar = new JButton("Generar");
-        JButton btnActualizar = new JButton("Actualizar");
         
         btnGenerar.addActionListener(e -> generarReporte((String) comboFiltro.getSelectedItem()));
-        btnActualizar.addActionListener(e -> generarReporte("Todas"));
         
         panelSuperior.add(lblTitulo);
         panelSuperior.add(new JLabel("  Filtro:"));
         panelSuperior.add(comboFiltro);
         panelSuperior.add(btnGenerar);
-        panelSuperior.add(btnActualizar);
         
         panel.add(panelSuperior, BorderLayout.NORTH);
         
@@ -948,8 +1098,42 @@ public class VentanaAdmin extends JFrame {
             }
             
             String mesero = o.getMesero();
-            if (mesero == null) {
-                mesero = "N/A";
+            String nombreMesero = "N/A";
+            
+            if (mesero != null && !mesero.isEmpty()) {
+                try {
+                    String sql = "SELECT nombre, usuario FROM usuarios WHERE usuario = ?";
+                    try (PreparedStatement ps = sistema.getConexion().prepareStatement(sql)) {
+                        
+                        ps.setString(1, mesero);
+                        try (ResultSet rs = ps.executeQuery()) {
+                            
+                            if (rs.next()) {
+                                String nombre = rs.getString("nombre");
+                                String usuario = rs.getString("usuario");
+                                
+                                // Debug: mostrar qué estamos obteniendo
+                                System.out.println("DEBUG: Encontrado - mesero='" + mesero + "' nombre='" + nombre + "' usuario='" + usuario + "'");
+                                
+                                // Usar nombre si no está vacío, sino usar username
+                                if (nombre != null && !nombre.trim().isEmpty()) {
+                                    nombreMesero = nombre.trim();
+                                } else {
+                                    nombreMesero = usuario; // Fallback al username
+                                    System.out.println("DEBUG: Usando username como fallback: " + usuario);
+                                }
+                            } else {
+                                System.out.println("DEBUG: No se encontró usuario para mesero='" + mesero + "'");
+                                nombreMesero = mesero; // Último fallback: mostrar el mesero como está
+                            }
+                        }
+                    }
+                } catch (SQLException e) {
+                    System.out.println("DEBUG: Error SQL buscando mesero: " + e.getMessage());
+                    nombreMesero = mesero; // Fallback al username si hay error
+                }
+            } else {
+                System.out.println("DEBUG: mesero es null o vacío");
             }
             
             String fecha = "N/A";
@@ -966,7 +1150,7 @@ public class VentanaAdmin extends JFrame {
             Object[] fila = new Object[6];
             fila[0] = o.getId();
             fila[1] = "Mesa " + numeroMesa;
-            fila[2] = mesero;
+            fila[2] = nombreMesero;
             fila[3] = fecha;
             fila[4] = "bs" + String.format("%.2f", total);
             fila[5] = estado;

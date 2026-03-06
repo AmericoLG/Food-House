@@ -99,7 +99,7 @@ public class VentanaCocina extends JFrame {
         tablaOrdenes.setRowHeight(50);
         tablaOrdenes.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
         tablaOrdenes.getTableHeader().setBackground(new Color(231, 76, 60));
-        tablaOrdenes.getTableHeader().setForeground(Color.WHITE);
+        tablaOrdenes.getTableHeader().setForeground(Color.BLACK);
         
         // Colores según estado
         tablaOrdenes.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
@@ -259,15 +259,15 @@ public class VentanaCocina extends JFrame {
                     break;
                 case "En espera":
                     setBackground(new Color(108, 117, 125));
-                    setForeground(Color.WHITE);
+                    setForeground(Color.BLACK);
                     break;
                 case "Preparando":
                     setBackground(new Color(0, 123, 255));
-                    setForeground(Color.WHITE);
+                    setForeground(Color.BLACK);
                     break;
                 case "Listo":
                     setBackground(new Color(40, 167, 69));
-                    setForeground(Color.WHITE);
+                    setForeground(Color.BLACK);
                     break;
                 default:
                     setBackground(Color.LIGHT_GRAY);
@@ -305,15 +305,15 @@ public class VentanaCocina extends JFrame {
                     break;
                 case "En espera":
                     button.setBackground(new Color(108, 117, 125));
-                    button.setForeground(Color.WHITE);
+                    button.setForeground(Color.BLACK);
                     break;
                 case "Preparando":
                     button.setBackground(new Color(0, 123, 255));
-                    button.setForeground(Color.WHITE);
+                    button.setForeground(Color.BLACK);
                     break;
                 case "Listo":
                     button.setBackground(new Color(40, 167, 69));
-                    button.setForeground(Color.WHITE);
+                    button.setForeground(Color.BLACK);
                     break;
             }
             
