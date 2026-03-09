@@ -158,47 +158,11 @@
 - **✅ Listo**: Pedido terminado (color verde)
 - **🚚 Entregado**: Pedido entregado al mesero
 
-#### ⚡ Operaciones en Tiempo Real
-**Actualización Automática**:
-- La tabla se actualiza cada 5 segundos
-- Nuevos pedidos aparecen automáticamente
-- Cambios de estado se reflejan inmediatamente
-
 **Cambiar Estado**:
 1. Seleccionar pedido de la tabla
 2. Hacer clic en botón de estado correspondiente
 3. Confirmar cambio
 4. El mesero recibe notificación automática
-
-#### 🔔 Notificaciones
-- **Nuevos Pedidos**: Indicador visual y sonido (opcional)
-- **Pedidos Listos**: Resaltado en verde
-- **Tiempo de Espera**: Mostrar tiempo transcurrido por pedido
-
 ---
-
-## 🎯 Flujo de Trabajo Completo
-
-### 1. Apertura del Restaurante
-1. **Administrador**: Inicia sesión y verifica inventario
-2. **Meseros**: Inician sesión y revisan estado de mesas
-3. **Cocina**: Inicia sesión y prepara estación de trabajo
-
-### 2. Atención al Cliente
-1. **Mesero** recibe clientes y los asigna a mesa
-2. **Mesero** toma pedido usando el sistema
-3. **Pedido** se envía automáticamente a cocina
-4. **Cocina** recibe notificación y prepara alimentos
-5. **Cocina** marca pedido como "Listo"
-6. **Mesero** sirve alimentos a los clientes
-
-### 3. Cierre de Cuenta
-1. **Cliente** solicita la cuenta
-2. **Mesero** procesa pago desde el sistema
-3. **Mesa** se libera automáticamente
-4. **Inventario** se actualiza automáticamente
-
-### 4. Cierre del Día
-1. **Administrador** genera reportes de ventas
-2. **Administrador** revisa inventario restante
-3. **Administrador** cierra sesión del sistema
+![alt text](image4.png)
+---

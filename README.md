@@ -1,120 +1,64 @@
-# 📋 Manual Técnico - Food House Sistema de Restaurante
+# 🛠️ Manual Técnico de Instalación - Food House
 
-## 🏗️ Arquitectura del Sistema
-
-### Tecnologías Utilizadas
-- **Lenguaje**: Java 8+
-- **Framework GUI**: Java Swing (AWT)
-- **Base de Datos**: SQLite
-- **IDE Recomendado**: BlueJ
-- **Driver JDBC**: SQLite JDBC Driver
-
-### Patrón Arquitectónico
-El sistema sigue un patrón **MVC (Modelo-Vista-Controlador)** con capas de acceso a datos (DAO):
-
-```
-┌─────────────────┐
-│   VISTA (GUI)   │ ← Ventanas Swing
-├─────────────────┤
-│ CONTROLADOR     │ ← SistemaRestaurante
-├─────────────────┤
-│   MODELO        │ ← Entidades (Usuario, Producto, Mesa, Orden)
-├─────────────────┤
-│      DAO        │ ← Capa de acceso a datos
-├─────────────────┤
-│   BASE DATOS    │ ← SQLite
-└─────────────────┘
-```
-## 🗂️ Estructura del Proyecto
-
-### Archivos Principales
-
-#### Clases de Entidad (Modelo)
-- **`Usuario.java`** - Gestión de usuarios y roles
-- **`Producto.java`** - Catálogo de productos del menú
-- **`Mesa.java`** - Gestión de mesas del restaurante
-- **`Orden.java`** - Pedidos y comandas
-- **`ItemOrden.java`** - Detalles de cada orden
-
-#### Clases DAO (Data Access Object)
-- **`UsuarioDAO.java`** - CRUD de usuarios en BD
-- **`ProductoDAO.java`** - CRUD de productos
-- **`MesaDAO.java`** - Gestión de mesas
-- **`OrdenDAO.java`** - Gestión de órdenes
-
-#### Clases de Control
-- **`SistemaRestaurante.java`** - Lógica principal del sistema
-- **`Database.java`** - Gestión en memoria de datos
-- **`DatabaseConnection.java`** - Conexión a SQLite
-
-#### Interfaces Gráficas (Vista)
-- **`VentanaLogin.java`** - Autenticación de usuarios
-- **`VentanaAdmin.java`** - Panel administrativo
-- **`VentanaMesero.java`** - Interfaz para meseros
-- **`VentanaCocina.java`** - Panel de cocina
-- **`VentanaGestionMesas.java`** - Gestión de mesas
-- **`VentanaAdminOrdenes.java`** - Administración de órdenes
-
-#### Punto de Entrada
-- **`RestauranteMain.java`** - Clase principal con método main()
----
-
-## 🛠️ Configuración y Despliegue
-
-### Requisitos del Sistema
-- **Java Runtime Environment (JRE)** 8 o superior
-- **SQLite JDBC Driver** en el classpath
-- **Memoria RAM**: Mínimo 512MB
-- **Espacio en disco**: 50MB (incluida BD)
-
-### Configuración en BlueJ
-1. **Agregar Driver SQLite**:
-   - Tools → Preferences → Libraries
-   - Agregar archivo `sqlite-jdbc.jar`
-
-2. **Configurar Proyecto**:
-   - Abrir carpeta del proyecto
-   - Verificar todas las clases compiladas
-
-### Archivos de Configuración
-- **Base de Datos**: `restaurante.db` (se crea automáticamente)
-- **Configuración**: Parámetros hardcodeados en clases
-- **Logs**: Salida estándar a consola
+Este documento describe los requerimientos, la arquitectura de persistencia y el flujo de despliegue necesario para el entorno de desarrollo del sistema.
 
 ---
 
-## 📊 Monitoreo y Logs
+## 🏗️ Especificaciones del Sistema
 
-### Mensajes del Sistema
-```java
-// Niveles de logging implementados
-System.out.println("✅ Conectado a SQLite");
-System.out.println("⚠️ Tabla ordenes no existe, creándola...");
-System.out.println("❌ Error de conexión: " + e.getMessage());
-```
+El sistema está construido bajo una arquitectura monolítica en **Java**, utilizando **SQLite** como motor de base de datos embebido para eliminar la necesidad de un servidor de base de datos externo.
 
-### Métricas Importantes
-- **Tiempo de respuesta** de consultas SQL
-- **Uso de memoria** de la aplicación
-- **Concurrent users** conectados
-- **Órdenes por minuto** procesadas
+* **Lenguaje:** Java 8 o superior.
+* **IDE:** BlueJ (Recomendado por su gestión visual de objetos).
+* **Persistencia:** Driver JDBC para SQLite.
+* **Gestión de Datos:** Archivo local `.db`.
 
 ---
 
-## 🔄 Ciclo de Vida del Software
+## 🔧 Configuración del Entorno y Despliegue
 
-### Fases de Desarrollo
-1. **Análisis**: Requisitos del restaurante
-2. **Diseño**: Arquitectura MVC + DAO
-3. **Implementación**: Java + Swing + SQLite
-4. **Pruebas**: Unitarias y de integración
-5. **Despliegue**: Standalone con JRE
+### 1. Obtención del Código Fuente
+Asegúrese de clonar o descargar el repositorio completo. La integridad de la carpeta `/images` es vital para la documentación visual, y la raíz debe contener los archivos `.java` y `.bluej`.
 
-### Mantenimiento Preventivo
-- **Backup diario** de `restaurante.db`
-- **Limpiar logs** periódicamente
-- **Actualizar Java** a últimas versiones
-- **Monitorear performance** del sistema
+![Clonación del repositorio y estructura de directorios](images/image1.png)
+
+### 2. Carga del Proyecto en el IDE
+Al abrir el archivo `package.bluej`, el entorno cargará el diagrama de clases. Es fundamental verificar que todas las relaciones (flechas de herencia y dependencia) se visualicen correctamente antes de compilar.
+
+![Carga del proyecto y visualización del diagrama de clases](images/image2.png)
+
+### 3. Configuración de Librerías Externas (Crítico)
+Para que la comunicación con la base de datos sea exitosa, el driver JDBC debe estar vinculado globalmente en el IDE:
+1.  Vaya a **Tools** -> **Preferences** -> **Libraries**.
+2.  Haga clic en **Add** y seleccione el archivo `sqlite-jdbc-x.x.x.jar`.
+3.  **Reinicie el IDE** para que los cambios en el Classpath surtan efecto.
+
+![Configuración del entorno y clases cargadas](images/image3.png)
+
+### 4. Inicialización y Punto de Entrada
+La lógica de arranque reside en la clase `RestauranteMain`. Al ejecutar el método `main(String[] args)`, el sistema realiza las siguientes tareas automáticas:
+* Verificación de conexión con el driver.
+* Creación del archivo `restaurante.db` si no existe.
+* Ejecución de scripts DDL para la creación de tablas.
+
+![Ejecución del método main en RestauranteMain](images/image4.png)
+
 ---
-*© 2024 Food House Sistema de Restaurante - Manual Técnico*
-*Versión: 1.0 | Última Actualización: 2026*
+
+## 🔑 Control de Acceso (RBAC)
+
+El sistema utiliza un control de acceso basado en roles para segmentar las funciones técnicas. Las credenciales de prueba integradas en la lógica de inicialización son:
+
+| Rol Técnico | Usuario | Contraseña | Alcance |
+| :--- | :--- | :--- | :--- |
+| **Administrador** | `admin` | `admin123` | Gestión de Inventario, Empleados y Reportes. |
+| **Mesero** | `mesero` | `mesero123` | Gestión de Pedidos, Mesas y Facturación. |
+| **Cocinero** | `cocina` | `cocina123` | Gestión de Comandas y Estados de Producción. |
+
+![Sistema Food House en tiempo de ejecución](images/image5.png)
+
+---
+
+## ⚠️ Notas Técnicas y Mantenimiento
+* **Reset de Datos:** Para limpiar la base de datos, elimine el archivo `restaurante.db` en la carpeta raíz. El sistema lo regenerará vacío en la próxima ejecución.
+* **Concurrencia:** SQLite bloquea el archivo durante operaciones de escritura. Asegúrese de no tener el archivo `.db` abierto en un gestor externo (como DB Browser) mientras corre el programa.
