@@ -36,7 +36,7 @@ Diseñado para el control estratégico del establecimiento.
 Optimizado para una atención rápida en el salón.
 
 ### Flujo de Atención
-1.  **Mapa de Mesas:** Identifique visualmente la disponibilidad (Libre/Ocupada).
+1.  **Lista de Mesas:** Identifique visualmente la disponibilidad (Libre/Ocupada).
 2.  **Toma de Pedido:** Seleccione la mesa y añada productos al carrito. El sistema calcula el subtotal automáticamente.
 3.  **Envío a Cocina:** Una vez confirmado, el pedido se transfiere instantáneamente al panel del cocinero.
 
