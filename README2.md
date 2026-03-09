@@ -1,168 +1,77 @@
-# 📖 Manual de Usuario - Food House Sistema de Restaurante
+# 📖 Manual de Usuario - Food House
 
-## 🚀 Instalación y Configuración
-
-### Requisitos Previos
-- Java 8 o superior instalado
-- BlueJ (recomendado para desarrollo)
-- Driver SQLite JDBC
-
-### Pasos de Instalación
-1. **Descargar el proyecto**: Extraer el archivo ZIP en una carpeta local
-2. **Abrir en BlueJ**: 
-   - Iniciar BlueJ
-   - Ir a `Proyecto -> Abrir Proyecto`
-   - Seleccionar la carpeta del proyecto
-3. **Configurar librería SQLite**:
-   - En BlueJ: `Tools -> Preferences -> Libraries`
-   - Agregar el driver SQLite JDBC
-4. **Ejecutar**: 
-   - Clic derecho en `RestauranteMain`
-   - Seleccionar `void main(String[] args)`
-
-### Primer Inicio
-- Al ejecutar por primera vez, se creará automáticamente el archivo `restaurante.db`
-- Si aparece un error SQL, borre el archivo `restaurante.db` y reinicie
+Este manual describe el flujo operativo y las funcionalidades de la interfaz para los distintos roles del sistema.
 
 ---
 
 ## 🔐 Acceso al Sistema
 
-### Credenciales por Defecto
-| Rol | Usuario | Contraseña | Permisos |
-|:---|:---|:---|:---|
-| **Administrador** | `admin` | `admin123` | Gestión completa del sistema |
-| **Mesero** | `mesero` | `mesero123` | Toma de pedidos y gestión de mesas |
-| **Cocinero** | `cocina` | `cocina123` | Gestión de comandas de cocina |
+El sistema cuenta con tres perfiles de acceso preconfigurados. Seleccione su rol e ingrese las credenciales correspondientes en la pantalla de inicio.
 
-### Inicio de Sesión
-1. Ejecutar el programa
-2. Ingresar usuario y contraseña
-3. Seleccionar el rol correspondiente
-4. Hacer clic en "Iniciar Sesión"
+| Rol | Usuario | Contraseña | Alcance |
+|:---|:---|:---|:---|
+| **Administrador** | `admin` | `admin123` | Gestión total, inventario y reportes. |
+| **Mesero** | `mesero` | `mesero123` | Control de mesas y toma de pedidos. |
+| **Cocinero** | `cocina` | `cocina123` | Gestión de comandas y estados. |
+
+![Pantalla de inicio de sesión y selección de rol](images/image6.png)
 
 ---
 
 ## 🎛️ Panel de Administración
 
-### Acceso al Panel
-- Iniciar sesión como `admin` / `admin123`
+Diseñado para el control estratégico del establecimiento.
 
-### Funcionalidades Principales
+### Gestión de Inventario y Personal
+* **Productos:** Permite añadir, editar o dar de baja elementos del menú, ajustando precios y stock en tiempo real.
+* **Empleados:** Registro y control de los usuarios con acceso al sistema.
+* **Reportes:** Visualización de métricas de ventas y ranking de productos más solicitados.
 
-#### 📦 Gestión de Productos
-**Ubicación**: Pestaña "Gestión de Productos"
-
-**Operaciones CRUD**:
-- **Crear Producto**:
-  - Hacer clic en "Agregar Producto"
-  - Completar: Nombre, Descripción, Precio, Categoría, Stock
-  - Hacer clic en "Guardar"
-
-- **Editar Producto**:
-  - Seleccionar producto de la tabla
-  - Hacer clic en "Editar"
-  - Modificar los campos necesarios
-  - Hacer clic en "Actualizar"
-
-- **Eliminar Producto**:
-  - Seleccionar producto
-  - Hacer clic en "Eliminar"
-  - Confirmar en el diálogo
-
-- **Buscar Productos**:
-  - Usar el campo de búsqueda por nombre
-  - Los resultados se actualizan automáticamente
-
-#### 👥 Gestión de Empleados
-**Ubicación**: Pestaña "Gestión de Empleados"
-
-**Operaciones**:
-- **Agregar Empleado**: Completar formulario con datos personales
-- **Editar Empleado**: Modificar información existente
-- **Eliminar Empleado**: Remover del sistema (con confirmación)
-- **Buscar**: Filtrar por nombre o puesto
-
-#### 📊 Reportes y Estadísticas
-**Ubicación**: Pestaña "Reportes"
-
-**Reportes Disponibles**:
-- **Ventas del Día**: Resumen de transacciones diarias
-- **Productos Más Vendidos**: Ranking de popularidad
-- **Inventario Actual**: Estado actual del stock
-- **Reportes Personalizados**: Por rango de fechas
-
-#### 🖥️ Gestión de Mesas
-**Ubicación**: Pestaña "Gestión de Mesas"
-
-**Operaciones**:
-- **Ver Estado**: Ocupadas/Libres
-- **Asignar Mesa**: Cambiar estado de mesa
-- **Capacidad**: Configurar número de comensales
+![Panel administrativo: Gestión de productos y stock](images/image7.png)
 
 ---
 
 ## 🍽️ Panel de Mesero
 
-### Acceso al Panel
-- Iniciar sesión como `mesero` / `mesero123`
+Optimizado para una atención rápida en el salón.
 
-### Funcionalidades Principales
+### Flujo de Atención
+1.  **Mapa de Mesas:** Identifique visualmente la disponibilidad (Libre/Ocupada).
+2.  **Toma de Pedido:** Seleccione la mesa y añada productos al carrito. El sistema calcula el subtotal automáticamente.
+3.  **Envío a Cocina:** Una vez confirmado, el pedido se transfiere instantáneamente al panel del cocinero.
 
-#### 📋 Toma de Pedidos
-1. **Seleccionar Mesa**:
-   - Ver mapa de mesas disponibles (verde=libre, rojo=ocupada)
-   - Hacer clic en mesa deseada
-
-2. **Agregar Productos**:
-   - Buscar productos por categoría
-   - Añadir al carrito con cantidad
-   - Ver subtotal en tiempo real
-
-3. **Confirmar Pedido**:
-   - Revisar orden final
-   - Hacer clic en "Enviar a Cocina"
-   - El pedido aparecerá automáticamente en cocina
-
-#### 💳 Gestión de Cuentas
-**Operaciones**:
-- **Ver Cuentas Activas**: Lista de mesas con pedidos
-- **Cerrar Cuenta**: 
-  - Seleccionar mesa
-  - Ver desglose de consumo
-  - Procesar pago
-  - Imprimir comprobante (opcional)
-
-#### 🔄 Estado de Mesas
-- **Visualización en Tiempo Real**: Actualización automática
-- **Cambio de Estado**: Libre → Ocupada → Disponible
-- **Notificaciones**: Cuando cocina marca pedido como "Listo"
+![Interfaz de salón: Mapa de mesas y carrito de pedidos](images/image8.png)
 
 ---
 
 ## 👨‍🍳 Panel de Cocina
 
-### Acceso al Panel
-- Iniciar sesión como `cocina` / `cocina123`
+Interfaz simplificada para el flujo de preparación.
 
-### Funcionalidades Principales
+### Gestión de Comandas
+* **Monitor de Órdenes:** Listado prioritario de pedidos pendientes.
+* **Cambio de Estado:** El cocinero marca el pedido como **Listo** para que el mesero reciba la notificación de servicio.
 
-#### 📋 Gestión de Comandas
-**Vista Principal**:
-- **Tabla de Órdenes**: Muestra todos los pedidos activos
-- **Columnas**: N° Orden, Mesa, Producto, Cantidad, Estado, Acciones
+![Monitor de cocina: Control de órdenes en tiempo real](images/image9.png)
 
-#### 🔄 Estados de Pedido
-**Estados Disponibles**:
-- **⏳ Pendiente**: Pedido recién recibido (color amarillo)
-- **✅ Listo**: Pedido terminado (color verde)
-- **🚚 Entregado**: Pedido entregado al mesero
-
-**Cambiar Estado**:
-1. Seleccionar pedido de la tabla
-2. Hacer clic en botón de estado correspondiente
-3. Confirmar cambio
-4. El mesero recibe notificación automática
 ---
-![alt text](image4.png)
+
+## 🎯 Flujo de Trabajo Diario
+
+### 1. Atención y Pedido
+El mesero asigna la mesa y envía la comanda. El sistema descuenta temporalmente los insumos del inventario.
+
+### 2. Preparación
+Cocina visualiza la orden, prepara los platillos y cambia el estado a "Listo".
+
+### 3. Pago y Cierre
+El mesero procesa el pago de la cuenta. Al finalizar, la mesa se libera automáticamente y se consolida la venta en el reporte del administrador.
+
+![Vista final del sistema: Proceso de cierre de cuenta y facturación](images/image10.png)
+
 ---
+
+## 💡 Tips de Uso
+* **Refresco:** El sistema actualiza los estados de las mesas automáticamente.
+* **Seguridad:** Recuerde cerrar sesión al finalizar su turno para proteger la integridad de los reportes.
+* **Base de Datos:** El sistema guarda cada transacción al instante; no es necesario un botón de "Guardar todo".
