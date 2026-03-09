@@ -63,69 +63,6 @@ El sistema sigue un patrón **MVC (Modelo-Vista-Controlador)** con capas de acce
 
 ---
 
-## 🗄️ Esquema de Base de Datos
-
-### Tablas Principales
-
-#### `usuarios`
-```sql
-CREATE TABLE usuarios (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    usuario TEXT NOT NULL UNIQUE,
-    password TEXT NOT NULL,
-    nombre TEXT DEFAULT '',
-    rol TEXT NOT NULL,
-    activo INTEGER DEFAULT 1
-);
-```
-
-#### `productos`
-```sql
-CREATE TABLE productos (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nombre TEXT NOT NULL,
-    descripcion TEXT,
-    precio_venta REAL NOT NULL,
-    disponible INTEGER DEFAULT 1
-);
-```
-
-#### `mesas`
-```sql
-CREATE TABLE mesas (
-    numero INTEGER PRIMARY KEY,
-    capacidad INTEGER NOT NULL,
-    estado TEXT DEFAULT 'Libre'
-);
-```
-
-#### `ordenes`
-```sql
-CREATE TABLE ordenes (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    mesa_id INTEGER NOT NULL,
-    mesero TEXT NOT NULL,
-    estado TEXT DEFAULT 'Pendiente',
-    fecha DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-```
-
-#### `detalle_orden`
-```sql
-CREATE TABLE detalle_orden (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    id_orden INTEGER NOT NULL,
-    id_producto INTEGER NOT NULL,
-    cantidad INTEGER NOT NULL,
-    notas TEXT,
-    estado TEXT DEFAULT 'Pendiente',
-    FOREIGN KEY (id_orden) REFERENCES ordenes(id),
-    FOREIGN KEY (id_producto) REFERENCES productos(id)
-);
-```
-
----
-
 ## 🔧 Flujo de Ejecución
 
 ### 1. Inicialización del Sistema
@@ -216,69 +153,12 @@ Cliente → Mesero → Sistema → Cocina → Mesero → Cliente
 pedido  pedido   orden    comida   comida  cuenta
 ```
 
-### 2. Gestión de Estados
-```java
-// Estados de Mesa
-public enum EstadoMesa {
-    LIBRE, OCUPADA, RESERVADA, MANTENIMIENTO
-}
-
-// Estados de Orden
-public enum EstadoOrden {
-    PENDIENTE, EN_PREPARACION, LISTO, ENTREGADO, CANCELADO
-}
-
-// Estados de ItemOrden
-public enum EstadoItem {
-    PENDIENTE, PREPARANDO, LISTO, ENTREGADO
-}
-```
-
 ### 3. Flujo de Datos
 ```
 Interfaz Swing → Controlador → DAO → SQLite
      ↑              ↓           ↓      ↓
   Usuario     SistemaRestaurante  JDBC  Archivo.db
 ```
-
----
-
-## 🔌 Integración de Componentes
-
-### 1. Sistema de Eventos
-```java
-// Ejemplo: ActionListener para botón
-btnAgregar.addActionListener(new ActionListener() {
-    public void actionPerformed(ActionEvent e) {
-        // Lógica de negocio
-        sistema.agregarProducto(producto);
-        // Actualizar interfaz
-        actualizarTabla();
-    }
-});
-```
-
-### 2. Actualización en Tiempo Real
-```java
-// Timer para cocina (actualización cada 5 segundos)
-Timer timer = new Timer(5000, e -> {
-    actualizarTablaOrdenes();
-});
-timer.start();
-```
-
-### 3. Manejo de Excepciones
-```java
-try {
-    Connection conn = DatabaseConnection.getConnection();
-    // Operaciones BD
-} catch (SQLException e) {
-    JOptionPane.showMessageDialog(null, 
-        "Error de base de datos: " + e.getMessage(),
-        "Error", JOptionPane.ERROR_MESSAGE);
-}
-```
-
 ---
 
 ## 🛠️ Configuración y Despliegue
@@ -302,53 +182,6 @@ try {
 - **Base de Datos**: `restaurante.db` (se crea automáticamente)
 - **Configuración**: Parámetros hardcodeados en clases
 - **Logs**: Salida estándar a consola
-
----
-
-## 🔍 Depuración y Mantenimiento
-
-### Puntos de Control Clave
-```java
-// Verificación de conexión
-if (DatabaseConnection.testConnection()) {
-    System.out.println("✅ BD conectada");
-}
-
-// Validación de usuario
-if (sistema.login(user, pass)) {
-    System.out.println("✅ Login exitoso");
-}
-
-// Estados de mesa
-System.out.println("Mesa " + mesa.getNumero() + ": " + mesa.getEstado());
-```
-
-### Problemas Comunes y Soluciones
-
-#### Error: "Driver SQLite no encontrado"
-```java
-// Solución: Verificar classpath
-Class.forName("org.sqlite.JDBC");
-```
-
-#### Error: "Base de datos no encontrada"
-```java
-// Solución: Verificar ruta del archivo
-String url = "jdbc:sqlite:restaurante.db";
-File dbFile = new File("restaurante.db");
-if (!dbFile.exists()) {
-    // Crear base de datos
-    DatabaseConnection.getConnection();
-}
-```
-
-#### Problemas de Concurrencia
-```java
-// Solución: Usar synchronized para operaciones críticas
-public synchronized boolean agregarOrden(Orden orden) {
-    // Operación atómica
-}
-```
 
 ---
 
@@ -384,43 +217,6 @@ System.out.println("❌ Error de conexión: " + e.getMessage());
 - **Limpiar logs** periódicamente
 - **Actualizar Java** a últimas versiones
 - **Monitorear performance** del sistema
-
 ---
-
-## 🚀 Mejoras Futuras
-
-### Arquitectura
-- **Migrar a Spring Boot** para mejor escalabilidad
-- **Implementar REST API** para clientes móviles
-- **Base de datos cliente-servidor** (MySQL/PostgreSQL)
-
-### Funcionalidades
-- **Sistema de reservas** online
-- **Integración pasarelas de pago**
-- **Módulo de inventario** avanzado
-- **Reportes analíticos** con gráficos
-
-### Técnico
-- **Testing automatizado** con JUnit
-- **Logging estructurado** con Log4j
-- **Configuración externa** (properties)
-- **Internacionalización** (i18n)
-
----
-
-## 📞 Soporte Técnico
-
-### Contacto de Desarrollo
-- **Arquitectura Principal**: Patrón MVC con DAO
-- **Base de Datos**: SQLite embebido
-- **Interfaz**: Java Swing nativo
-
-### Recursos Técnicos
-- **Código Fuente**: Comentarios detallados en cada clase
-- **Esquema BD**: Definido en `DatabaseConnection.java`
-- **Logs**: Consola estándar y diálogos de error
-
----
-
 *© 2024 Food House Sistema de Restaurante - Manual Técnico*
-*Versión: 1.0 | Última Actualización: 2024*
+*Versión: 1.0 | Última Actualización: 2026*
