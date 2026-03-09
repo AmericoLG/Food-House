@@ -25,9 +25,6 @@ El sistema sigue un patrón **MVC (Modelo-Vista-Controlador)** con capas de acce
 │   BASE DATOS    │ ← SQLite
 └─────────────────┘
 ```
-
----
-
 ## 🗂️ Estructura del Proyecto
 
 ### Archivos Principales
@@ -60,105 +57,6 @@ El sistema sigue un patrón **MVC (Modelo-Vista-Controlador)** con capas de acce
 
 #### Punto de Entrada
 - **`RestauranteMain.java`** - Clase principal con método main()
-
----
-
-## 🔧 Flujo de Ejecución
-
-### 1. Inicialización del Sistema
-```java
-// RestauranteMain.java
-public static void main(String[] args) {
-    // 1. Configurar Look & Feel nativo
-    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-    
-    // 2. Inicializar base de datos SQLite
-    if (DatabaseConnection.testConnection()) {
-        System.out.println("✅ Base de datos lista.");
-    }
-    
-    // 3. Iniciar interfaz de login
-    SwingUtilities.invokeLater(() -> new VentanaLogin().setVisible(true));
-}
-```
-
-### 2. Conexión a Base de Datos
-```java
-// DatabaseConnection.java
-public static Connection getConnection() {
-    if (connection == null || connection.isClosed()) {
-        Class.forName("org.sqlite.JDBC");
-        connection = DriverManager.getConnection("jdbc:sqlite:restaurante.db");
-        inicializarBaseDeDatos(); // Crea tablas si no existen
-    }
-    return connection;
-}
-```
-
-### 3. Flujo de Autenticación
-```java
-// SistemaRestaurante.java
-public boolean login(String usuario, String password) {
-    Usuario u = usuarioDAO.login(usuario, password);
-    if (u != null) {
-        usuarioActual = u;
-        return true;
-    }
-    return false;
-}
-```
-
----
-
-## 🎨 Diseño de Interfaces
-
-### Paleta de Colores
-- **Fondo Principal**: `new Color(61, 41, 20)` (Café oscuro)
-- **Fondo Secundario**: `new Color(92, 61, 30)` (Café medio)
-- **Acentos**: `new Color(212, 175, 55)` (Dorado)
-- **Texto**: `new Color(245, 245, 220)` (Beige)
-- **Botones**: `new Color(139, 69, 19)` (Café silla)
-
-### Componentes GUI Principales
-
-#### VentanaLogin
-- Campos: Usuario, Contraseña, Rol (ComboBox)
-- Autenticación contra base de datos
-- Redirección según rol de usuario
-
-#### VentanaAdmin
-- **Pestañas**: Productos, Empleados, Reportes, Mesas
-- **CRUD completo** para todas las entidades
-- **Reportes** en tiempo real
-
-#### VentanaMesero
-- **Mapa de mesas** visual
-- **Sistema de pedidos** con carrito
-- **Gestión de cuentas** y pagos
-
-#### VentanaCocina
-- **Tabla de comandas** en tiempo real
-- **Actualización automática** cada 5 segundos
-- **Estados**: Pendiente → Listo → Entregado
-
----
-
-## ⚡ Procesos de Negocio
-
-### 1. Proceso de Pedido
-```
-Cliente → Mesero → Sistema → Cocina → Mesero → Cliente
-    ↓        ↓         ↓        ↓        ↓        ↓
-  Llega   Toma     Envía    Prepara   Sirve   Paga
-pedido  pedido   orden    comida   comida  cuenta
-```
-
-### 3. Flujo de Datos
-```
-Interfaz Swing → Controlador → DAO → SQLite
-     ↑              ↓           ↓      ↓
-  Usuario     SistemaRestaurante  JDBC  Archivo.db
-```
 ---
 
 ## 🛠️ Configuración y Despliegue
